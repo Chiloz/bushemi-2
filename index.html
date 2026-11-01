@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" data-pal="ocean" data-theme="light" data-shape="soft"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bushemi Care: design preview v4</title>
+<style>
+/* ===== EASY TO CHANGE: LOOKS (the client can switch these live in the preview) ===== */
+:root{--p:#1A5CF0;--p2:#0C2E7A;--a:#0A8F4D;--bg:#F1F5FA;--solid:#fff;--glass:rgba(255,255,255,.82);--ink:#0F1B2D;--mut:#5E6C7E;--line:#E4EAF1;
+ --soft:color-mix(in srgb,var(--p) 11%,var(--solid));--red:#D93636;--redsoft:#FCE8E6;--amb:#8A5300;--ambs:#FFF0D1;--grn:#0A7A44;--grns:#E1F4EA;--r:22px;--sh:0 8px 24px rgba(15,27,45,.08)}
+[data-pal=forest]{--p:#0A7A4B;--p2:#064D31;--a:#1A5CF0}
+[data-pal=sunrise]{--p:#E5533D;--p2:#8F2A1B;--a:#0A8F4D}
+[data-pal=violet]{--p:#6B4EFF;--p2:#34218F;--a:#0A8F4D}
+[data-shape=sharp]{--r:8px}
+[data-theme=dark]{--bg:#0A101C;--solid:#141D2F;--glass:rgba(20,29,47,.85);--ink:#EAF0F8;--mut:#9AA8BC;--line:#243048;--amb:#F5B94A;--ambs:#3A2B0A;--grn:#4FD08E;--grns:#10301F;--redsoft:#3B1717;--red:#FF7A70;--sh:0 8px 24px rgba(0,0,0,.35)}
+*{box-sizing:border-box;margin:0}
+body{font-family:ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:linear-gradient(135deg,#dbe6f4,#eef3fa);color:var(--ink);min-height:100vh;font-size:16px;line-height:1.4}
+html[data-theme=dark] body{background:#05080f}
+.stage{min-height:100vh;display:flex;align-items:center;justify-content:center;gap:26px;padding:12px}
+.phone{width:390px;height:min(844px,100vh - 24px);background:var(--bg);border-radius:44px;border:10px solid #0b1320;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(10,20,40,.35);flex:none}
+.status{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--mut);padding:8px 20px 2px;flex:none}
+.panel{width:250px;background:var(--glass);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--sh);backdrop-filter:blur(10px)}
+.panel h3{margin-bottom:2px}
+@media(max-width:900px){.panel{display:none}}
+@media(max-width:520px){.stage{padding:0;display:block}.phone{width:100%;height:100dvh;border:0;border-radius:0;box-shadow:none}}
+#main{flex:1;display:flex;flex-direction:column;min-height:0}
+.scr{flex:1;overflow-y:auto;padding:6px 16px 112px}.scr.p0{padding:0 0 12px}
+h1{font-size:24px;line-height:1.2}h2{font-size:18px;margin:22px 0 10px;display:flex;justify-content:space-between;align-items:center}h2 a{font-size:14px;color:var(--p);font-weight:700;cursor:pointer}
+h3{font-size:16px;margin:18px 0 8px}
+.mut{color:var(--mut)}small{font-size:13px;color:var(--mut)}.ctr{text-align:center}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}.row{display:flex;gap:10px;align-items:center}
+.i{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}.i.sm{width:18px;height:18px}
+.st{width:15px;height:15px;fill:#F5A623;stroke:#F5A623}.vf{width:17px;height:17px;stroke:var(--a);vertical-align:-3px}
+.card{background:var(--solid);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border:0;border-radius:calc(var(--r) - 6px);background:var(--p);color:#fff;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.full{width:100%}.btn.o{background:transparent;color:var(--p);box-shadow:inset 0 0 0 2px var(--p)}.btn.ac{background:var(--a)}.btn.r{background:transparent;color:var(--red);box-shadow:inset 0 0 0 2px var(--red)}.btn.w{background:#fff;color:var(--p2)}.btn.gl{background:rgba(255,255,255,.2);color:#fff}.btn.sm{min-height:42px;padding:0 14px;font-size:14px}.btn:disabled{opacity:.4}
+:focus-visible{outline:3px solid #FFB400;outline-offset:2px}
+.chip{min-height:40px;padding:0 14px;border-radius:99px;border:1.5px solid var(--line);background:var(--solid);color:var(--ink);font:inherit;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--p);color:#fff;border-color:var(--p)}.chip:disabled{opacity:.35;text-decoration:line-through;cursor:default}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.hs{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}.hs>*{flex:none}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:700}.pb{background:var(--soft);color:var(--p)}.pg{background:var(--grns);color:var(--grn)}.pa{background:var(--ambs);color:var(--amb)}.pr{background:var(--redsoft);color:var(--red)}.pw{background:rgba(255,255,255,.22);color:#fff}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--solid);border:2px solid var(--line);border-radius:14px;padding:12px 14px;min-height:50px}
+input:focus,select:focus,textarea:focus{border-color:var(--p);outline:0}textarea{min-height:80px}
+label,.lab{display:block;font-weight:700;margin:14px 0 6px;font-size:14px}
+.av{position:relative;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex:none}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.top{display:flex;justify-content:space-between;align-items:center;padding:8px 0 10px}
+.who{display:flex;align-items:center;gap:12px;background:none;border:0;font:inherit;color:var(--ink);cursor:pointer;text-align:left}.who b{font-size:19px;display:block;line-height:1.1}
+.tr{display:flex;gap:8px}
+.ib{width:46px;height:46px;border-radius:50%;border:0;background:var(--solid);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:var(--sh)}
+.ib .nd{position:absolute;top:10px;right:11px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid var(--solid)}
+.ib.gl2{background:rgba(255,255,255,.22);color:#fff;box-shadow:none}.ib.fav.on{color:#fff}.ib.fav.on .i{fill:#fff}
+.loc{display:inline-flex;align-items:center;gap:6px;background:var(--soft);color:var(--p);border:0;border-radius:99px;padding:8px 14px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:12px}
+.search{display:flex;align-items:center;gap:10px;width:100%;background:var(--solid);border:0;border-radius:calc(var(--r) - 4px);padding:15px 16px;color:var(--mut);font:inherit;box-shadow:var(--sh);cursor:pointer;margin-bottom:16px;text-align:left}
+.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border-radius:calc(var(--r) + 6px);padding:18px;position:relative;overflow:hidden;margin-bottom:16px}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.10)}.hero:before{width:150px;height:150px;right:-40px;top:-50px}.hero:after{width:90px;height:90px;right:50px;bottom:-45px}
+.hero>*{position:relative;z-index:1}.hl{font-size:21px;font-weight:800;margin-top:10px}.hsub{opacity:.85;font-size:15px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;font:inherit;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer}
+.tile .ti{width:60px;height:60px;border-radius:calc(var(--r) - 2px);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.14)}
+.mini{width:128px;background:var(--solid);border:0;border-radius:var(--r);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;color:var(--ink);box-shadow:var(--sh);cursor:pointer}
+.mini small{text-align:center;line-height:1.2}.rt{display:flex;align-items:center;gap:3px;font-weight:700;font-size:13px}
+.pc{display:flex;gap:12px;align-items:center;background:var(--solid);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:12px;cursor:pointer}
+.pc .b{flex:1;min-width:0}.nm{font-weight:800}.meta{font-size:13.5px;display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#B8C2CE;display:inline-block}.dot.on{background:#1DB65A;box-shadow:0 0 0 3px rgba(29,182,90,.2)}
+.fav{border:0;background:none;color:var(--mut);cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center}.fav.on{color:var(--red)}.fav.on .i{fill:var(--red)}
+.phero{height:150px;background:linear-gradient(135deg,var(--p),var(--p2));display:flex;justify-content:space-between;padding:16px;position:relative;overflow:hidden}
+.phero:before{content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.1);right:-50px;top:-70px}.phero>*{position:relative}
+.pbody{padding:0 16px}.pav{display:flex;justify-content:center;margin-top:-48px;margin-bottom:8px}.pav .av{border:5px solid var(--bg)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.stats>div{background:var(--solid);border-radius:var(--r);padding:12px;text-align:center;box-shadow:var(--sh)}.stats b{font-size:20px;display:block}
+.vrow{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:15px}.vrow .i{stroke:var(--a)}
+.rev{background:var(--solid);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.bar2{position:sticky;bottom:0;display:flex;gap:10px;padding:12px 16px;background:var(--glass);backdrop-filter:blur(14px);border-top:1px solid var(--line);margin-top:18px}.bar2>*{flex:1}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.day{flex:none;width:58px;padding:10px 0;border-radius:calc(var(--r) - 6px);border:1.5px solid var(--line);background:var(--solid);font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}.day small{font-size:11.5px}.day b{font-size:18px}.day.on{background:var(--p);border-color:var(--p);color:#fff}.day.on small{color:#fff;opacity:.85}
+.rdo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--solid);border:2px solid var(--line);border-radius:calc(var(--r) - 6px);padding:12px;margin-bottom:8px;cursor:pointer}
+.rdo.on{border-color:var(--p);background:var(--soft)}.rdo .b{flex:1}.rdo b{display:block}.rd{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none}.rdo.on .rd{border:7px solid var(--p)}
+.li{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.li:last-child{border:0}.li .b{flex:1}.li b{display:block}
+.tot{display:flex;justify-content:space-between;font-weight:800;font-size:20px;padding-top:10px}
+.date{width:54px;height:58px;border-radius:calc(var(--r) - 8px);background:var(--soft);color:var(--p);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:20px;line-height:1.1;flex:none}.date small{font-size:11.5px;color:var(--p)}
+.tabs{display:flex;background:var(--solid);border-radius:99px;padding:4px;box-shadow:var(--sh);margin:6px 0 16px}.tabs button{flex:1;min-height:42px;border:0;background:none;border-radius:99px;font:inherit;font-weight:700;color:var(--mut);cursor:pointer}.tabs button.on{background:var(--p);color:#fff}
+.sw{width:56px;height:32px;border-radius:20px;border:0;background:#C5CCD3;position:relative;cursor:pointer;flex:none}.sw:after{content:"";position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}.sw.on{background:var(--a)}.sw.on:after{left:28px}
+.nav{position:absolute;left:14px;right:14px;bottom:12px;height:68px;background:var(--glass);backdrop-filter:blur(16px);border-radius:calc(var(--r) + 4px);box-shadow:0 10px 30px rgba(10,20,40,.2);display:none;padding:6px;border:1px solid var(--line);z-index:10}.nav.on{display:flex}
+.nav button{flex:1;border:0;background:none;color:var(--mut);font:inherit;font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:calc(var(--r) - 2px);cursor:pointer;position:relative}.nav button.on{background:var(--soft);color:var(--p)}
+.badge{position:absolute;top:5px;left:calc(50% + 6px);background:var(--red);color:#fff;font-size:10px;font-style:normal;border-radius:99px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.ov{position:absolute;inset:0;background:rgba(10,18,30,.55);display:none;align-items:flex-end;z-index:30}.ov.on{display:flex}
+.sheet{background:var(--solid);width:100%;max-height:92%;overflow-y:auto;border-radius:28px 28px 0 0;padding:10px 18px 24px}.grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.toast{position:absolute;left:16px;right:16px;bottom:96px;background:#0b1320;color:#fff;border-radius:16px;padding:12px 16px;font-weight:600;z-index:40;display:none;text-align:center}
+.spin{width:54px;height:54px;border-radius:50%;border:6px solid var(--soft);border-top-color:var(--p);margin:20px auto;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
+.tick{width:80px;height:80px;border-radius:50%;background:var(--grns);color:var(--grn);display:flex;align-items:center;justify-content:center;margin:10px auto 12px}.tick .i{width:42px;height:42px;stroke-width:3}
+.spark{width:100%;height:38px;display:block}
+.vit{display:flex;align-items:center;gap:12px}.vit .b{flex:1}.vit b.n{font-size:22px}.vit .sp{width:110px}
+.bub{max-width:80%;padding:10px 14px;border-radius:18px;margin:6px 0;font-size:15px}.bub.me{margin-left:auto;background:var(--p);color:#fff;border-bottom-right-radius:6px}.bub.p{background:var(--solid);border-bottom-left-radius:6px;box-shadow:var(--sh)}.bub small{display:block;opacity:.65;font-size:11px;margin-top:2px;color:inherit}
+.comp{display:flex;gap:8px;padding:10px 12px 14px;background:var(--solid);border-top:1px solid var(--line)}.comp input{border-radius:99px}.comp .btn{min-width:50px;padding:0;border-radius:50%;width:50px}
+.thh{display:flex;align-items:center;gap:12px;padding:8px 14px 10px;background:var(--solid);border-bottom:1px solid var(--line)}.thh .b{flex:1}
+.map{background:var(--soft);border-radius:var(--r);overflow:hidden;margin-bottom:14px}.map svg{display:block;width:100%;height:auto}
+.tl{list-style:none;padding:0}.tl li{position:relative;padding:0 0 16px 44px}.tl li:before{content:"";position:absolute;left:13px;top:30px;bottom:0;width:3px;background:var(--line)}.tl li:last-child:before{display:none}
+.tl i{position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;border:3px solid var(--line);background:var(--solid);font-style:normal;font-weight:800;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:13px}
+.tl .d i{background:var(--a);border-color:var(--a);color:#fff}.tl .d:before{background:var(--a)}.tl .n i{border-color:var(--p);background:var(--soft);color:var(--p)}.tl b{display:block}.tl span{font-size:14px;color:var(--mut)}
+.dots{display:flex;gap:10px}.dotb{width:38px;height:38px;border-radius:50%;border:3px solid var(--solid);cursor:pointer;box-shadow:0 0 0 2px var(--line)}.dotb.on{box-shadow:0 0 0 3px var(--ink)}
+.pbar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.pbar i{display:block;height:100%;background:var(--a);border-radius:99px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:130px;margin:10px 0}.bars>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}.bars i{width:100%;border-radius:8px 8px 4px 4px;background:linear-gradient(var(--p),var(--p2));min-height:4px}.bars small{font-size:11px}
+.ill{display:flex;justify-content:center;padding:34px 0 10px}.ill svg{width:230px;height:230px}
+.onb{padding:0 24px 24px;display:flex;flex-direction:column;min-height:100%;justify-content:center}
+.dts{display:flex;gap:6px;justify-content:center;margin:16px 0}.dts i{width:8px;height:8px;border-radius:99px;background:var(--line)}.dts i.on{width:26px;background:var(--p)}
+.sos{background:var(--red);color:#fff}
+.promo{background:linear-gradient(135deg,var(--a),color-mix(in srgb,var(--a) 55%,#000));color:#fff;border-radius:calc(var(--r) + 4px);padding:18px;position:relative;overflow:hidden;margin-top:6px}.promo b{font-size:19px;display:block}.promo p{opacity:.9;margin:4px 0 12px;max-width:70%}.promo svg{position:absolute;right:-6px;bottom:-6px;width:110px;opacity:.28;stroke:#fff}
+</style></head>
+<body>
+<div class="stage">
+ <div class="phone">
+  <div class="status"><span id="clk">9:41</span><span>Design preview v4</span></div>
+  <main id="main"></main>
+  <nav class="nav" id="nav"></nav>
+  <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
+  <div class="toast" id="toast"></div>
+ </div>
+ <aside class="panel" id="panel"></aside>
+</div>
+<script>
+/* ===== EASY TO CHANGE: PRICES (placeholders, in Kwacha) ===== */
+const SV=[
+ {id:'nurse',n:'Nurse',full:'Nurse home visit',p:350,i:'nurse',c:'#1A5CF0',mode:'home'},
+ {id:'physio',n:'Physio',full:'Physiotherapy visit',p:450,i:'body',c:'#7A4CE0',mode:'home'},
+ {id:'doc',n:'Doctor',full:'Doctor home visit',p:600,i:'doc',c:'#E5533D',mode:'home'},
+ {id:'mum',n:'Mum & baby',full:'Mother and baby care',p:400,i:'baby',c:'#E0599B',mode:'home'},
+ {id:'care',n:'Caregiver',full:'Caregiver day visit',p:300,i:'heart',c:'#0A8F4D',mode:'home'},
+ {id:'tdoc',n:'Video doctor',full:'Doctor video consultation',p:200,i:'video',c:'#0E9AA7',mode:'tele'},
+ {id:'diet',n:'Dietician',full:'Dietician consultation',p:180,i:'leaf',c:'#6AA81E',mode:'tele'},
+ {id:'psy',n:'Therapy',full:'Psychologist consultation',p:250,i:'mind',c:'#B8860B',mode:'tele'}];
+const FEES={inquiry:250,firstMonth:9000,monthly:7500};
+const VOUCHER='WELCOME10';
+const PIC='https://randomuser.me/api/portraits/';
+const P=[
+ {id:1,n:'Grace Mulenga',role:'Registered Nurse',svc:['nurse'],yrs:8,r:4.9,rv:41,visits:312,area:'Chalala',langs:['English','Nyanja'],today:true,ph:PIC+'women/44.jpg',bio:'Eight years of hospital and home nursing. Wound care, injections, drips and post-surgery recovery, always gentle and on time.'},
+ {id:2,n:'Natasha Banda',role:'Enrolled Nurse',svc:['nurse'],yrs:5,r:4.8,rv:23,visits:188,area:'Kabulonga',langs:['English','Bemba'],today:true,ph:PIC+'women/68.jpg',bio:'Patient, friendly nurse who loves caring for older people at home. Blood pressure, sugar checks and medication support.'},
+ {id:3,n:'Dr. Joseph Phiri',role:'General Doctor',svc:['doc','tdoc'],yrs:12,r:4.9,rv:88,visits:640,area:'Woodlands',langs:['English'],today:false,ph:PIC+'men/32.jpg',bio:'Family doctor with 12 years of experience. Home visits and video consultations for the whole family.'},
+ {id:4,n:'Mercy Zulu',role:'Certified Caregiver',svc:['care'],yrs:11,r:4.9,rv:57,visits:430,area:'Woodlands',langs:['English','Nyanja','Bemba'],today:true,ph:PIC+'women/12.jpg',bio:'Eleven years of elderly and long-term care. Bathing, meals, mobility and warm company. Day, night and live-in.'},
+ {id:5,n:'Chileshe Mutale',role:'Physiotherapist',svc:['physio'],yrs:7,r:4.7,rv:34,visits:260,area:'Roma',langs:['English','Bemba'],today:true,ph:PIC+'men/52.jpg',bio:'Helps you move better after surgery, injury or stroke. Simple home exercise plans that actually fit your day.'},
+ {id:6,n:'Mwansa Kapata',role:'Dietician',svc:['diet'],yrs:6,r:4.8,rv:19,visits:140,area:'Video only',langs:['English','Bemba'],today:false,ph:PIC+'women/26.jpg',bio:'Eating plans for diabetes, blood pressure and healthy weight, built around food you can find in Lusaka markets.'},
+ {id:7,n:'Ruth Tembo',role:'Midwife and lactation counsellor',svc:['mum'],yrs:9,r:4.9,rv:46,visits:355,area:'Chalala',langs:['English','Nyanja'],today:false,ph:PIC+'women/79.jpg',bio:'Newborn checks, breastfeeding help and recovery support for new mums, right in your home.'},
+ {id:8,n:'Bwalya Chola',role:'Clinical Psychologist',svc:['psy'],yrs:10,r:4.9,rv:63,visits:520,area:'Video only',langs:['English','Bemba','Nyanja'],today:true,ph:PIC+'men/75.jpg',bio:'Private, caring talk therapy for stress, grief, anxiety and family concerns. Calm space, no judgement.'}];
+const REV=[['Mutinta M.','Arrived on time and was so gentle with my mother. Highly recommend.',5],['Peter K.','Clear explanations, very professional. We felt safe.',5],['Agnes S.','Good care and kind to the whole family. Booking again.',4]];
+const SLOTS=['08:00','09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'];
+const KINDS={mtn:['MTN Mobile Money','096 123 4567'],airtel:['Airtel Money','097 123 4567'],zamtel:['Zamtel Kwacha','095 123 4567'],card:['Visa or Mastercard',''],cash:['Pay at the clinic','']};
+const PALS=[['ocean','Ocean','#1A5CF0'],['forest','Forest','#0A7A4B'],['sunrise','Sunrise','#E5533D'],['violet','Violet','#6B4EFF']];
+const REPLIES=['Thank you, noted. I will see you then.','Of course, no problem at all.','I am on my way, about 15 minutes.','Please keep the medicines and any reports ready.','Got it. Is there anything else I should know?'];
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const kw=n=>'K'+Math.round(n).toLocaleString('en-US');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hash=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)};
+const TODAY=(()=>{const d=new Date();d.setHours(0,0,0,0);return d})();
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const dkey=d=>`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+const dOf=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const fmt=d=>d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+const wd=d=>d.toLocaleDateString('en-GB',{weekday:'short'});
+const mo=d=>d.toLocaleDateString('en-GB',{month:'short'});
+const svOf=id=>SV.find(s=>s.id===id),PV=id=>P.find(p=>p.id===+id);
+const minP=p=>Math.min(...p.svc.map(i=>svOf(i).p));
+const IC={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+ chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/>',
+ heart:'<path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z"/>',
+ nurse:'<path d="M12 5v8M8 9h8"/><rect x="4" y="3" width="16" height="18" rx="4"/><path d="M8 17h8"/>',
+ body:'<circle cx="12" cy="5" r="2.5"/><path d="M12 8v6M6 11l6 1 6-1M9 21l3-7 3 7"/>',
+ doc:'<circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6M10 16v2a2 2 0 0 0 4 0"/>',
+ baby:'<circle cx="12" cy="12" r="8"/><path d="M9 11h.01M15 11h.01M9.5 15c1.5 1.3 3.5 1.3 5 0"/>',
+ leaf:'<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15M5 19l8-8"/>',
+ mind:'<path d="M9 4a4 4 0 0 0-4 4 3 3 0 0 0-1 5 3 3 0 0 0 3 4 3 3 0 0 0 5 1V5a3 3 0 0 0-3-1zM15 4a4 4 0 0 1 4 4 3 3 0 0 1 1 5 3 3 0 0 1-3 4 3 3 0 0 1-5 1"/>',
+ star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+ shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5L15.5 10"/>',
+ pin:'<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+ video:'<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3z"/>',
+ bell:'<path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 0 0 4 0"/>',
+ sos:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+ pill:'<path d="M10.5 3.5a4.2 4.2 0 0 1 6 6l-7 7a4.2 4.2 0 0 1-6-6z"/><path d="M8 8l6 6"/>',
+ pulse:'<path d="M3 12h4l2.5-6 4 12 2.5-6H21"/>',send:'<path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',plus:'<path d="M12 5v14M5 12h14"/>',
+ wallet:'<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M16 15h2"/>',
+ bag:'<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
+ map:'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+ gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9c-2-4-6-3-5 0M12 9c2-4 6-3 5 0"/>'};
+const ic=(n,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const GR=['#1A5CF0,#6AA8FF','#0A8F4D,#7BDCA8','#E5533D,#FFB199','#6B4EFF,#B3A6FF','#0E9AA7,#8EE3EA','#E0599B,#FFB3D6'];
+const av=(n,u,s=48)=>`<span class="av" style="width:${s}px;height:${s}px;font-size:${Math.round(s*.38)}px;background:linear-gradient(135deg,${GR[hash(n)%GR.length]})">${esc(n.replace(/^Dr\.?\s*/,'')[0])}${u?`<img src="${u}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>`;
+function spark(a,st){const w=120,h=38,mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1,pts=a.map((v,i)=>[+(i*w/(a.length-1)).toFixed(1),+(h-5-((v-mn)/r)*(h-10)).toFixed(1)]),l=pts.map(p=>p.join(',')).join(' '),e=pts[pts.length-1];
+ return `<svg viewBox="0 0 ${w} ${h}" class="spark" aria-hidden="true"><polygon points="0,${h} ${l} ${w},${h}" style="fill:${st};opacity:.13"/><polyline points="${l}" fill="none" style="stroke:${st}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${e[0]}" cy="${e[1]}" r="3.6" style="fill:${st}"/></svg>`}
+const greeting=()=>{const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening'};
+
+/* ---------- state ---------- */
+const S={role:'client',pal:'ocean',dark:false,shape:'soft',loc:'Chalala, Lusaka',user:{name:'Mutinta Mwila',phone:'096 123 4567'},
+ f:'all',q:'',todayOnly:false,sort:'rating',fav:[3],tab2:'Upcoming',voucherUsed:false,rt:5,unread:{1:1},
+ fam:[{n:'Mutinta Mwila',r:'Myself'},{n:'Chanda Mwila',r:'Mother'}],
+ addrs:[{n:'Home',a:'Chalala, Lusaka'},{n:"Mother's house",a:'Woodlands, Lusaka'}],
+ methods:[{k:'mtn',s:'096 123 4567'}],tg:{push:true,sms:true,wa:false},lang:'English',
+ appts:[
+  {id:1,pid:1,svc:'nurse',who:'Chanda Mwila',d:dkey(TODAY),tm:'14:00',st:'On the way',addr:"Mother's house, Woodlands",amt:350},
+  {id:2,pid:3,svc:'tdoc',who:'Chanda Mwila',d:dkey(addD(TODAY,2)),tm:'10:00',st:'Confirmed',addr:'',amt:200},
+  {id:3,pid:5,svc:'physio',who:'Mutinta Mwila',d:dkey(addD(TODAY,-12)),tm:'09:00',st:'Completed',addr:'Home, Chalala',amt:450,sum:'Good progress on the knee. Do the three exercises twice a day. Next review in two weeks.',rated:0},
+  {id:4,pid:2,svc:'nurse',who:'Chanda Mwila',d:dkey(addD(TODAY,-20)),tm:'Morning',st:'Completed',addr:"Mother's house, Woodlands",amt:350,sum:'Blood pressure checked and normal. Dressing changed. Drink more water.',rated:5}],
+ threads:{1:[{f:'p',t:"Hello Mutinta, I will be at your mother's house by 14:00 today.",m:'12:05'}],3:[{f:'me',t:'Doctor, can we move the call a little later?',m:'Yesterday'},{f:'p',t:'Yes, 10:00 works for me. See you then.',m:'Yesterday'}]},
+ vit:{bp:[128,132,126,130,124,127,125],bpd:[82,85,80,84,79,81,80],sugar:[6.1,6.4,5.9,6.8,6.2,6.0,5.8],weight:[71.2,71.0,70.8,70.9,70.5,70.4,70.2]},
+ meds:[{id:1,n:'Amlodipine',dose:'5 mg',time:'08:00',taken:true},{id:2,n:'Metformin',dose:'500 mg',time:'13:00',taken:false},{id:3,n:'Vitamin D',dose:'1 tablet',time:'20:00',taken:false}],
+ cg:{name:'Grace Mulenga',on:true,days:[1,1,1,1,1,0,0],shifts:['Morning','Afternoon'],bal:1850,week:[420,350,700,0,560,350,470],
+  jobs:[{id:1,who:'Mrs Phiri',svc:'Nurse home visit',area:'Kabulonga · 3.2 km',when:'Today, 16:00',pay:350},{id:2,who:'Mr Banda',svc:'Wound dressing',area:'Chalala · 1.1 km',when:'Tomorrow, 09:00',pay:300},{id:3,who:'Mrs Tembo',svc:'Elderly care (day)',area:'Woodlands · 5.4 km',when:'Wed, 08:00',pay:420}],
+  sched:[{who:'Mr Zimba',svc:'Injection and BP check',when:'Today, 11:30',pay:350}]}};
+const first=()=>S.user.name.split(' ')[0];
+const unread=()=>Object.keys(S.unread).length;
+let B={};
+const ST={stage:'onb',slide:0,tab:'home',stack:[],tmr:null,prog:{}};
+const V={},A={};
+const FULL=['thread'],FLUSH=['prof','onb','role'];
+const NAVS={client:[['home','Home','home'],['find','Find','search'],['appts','Bookings','cal'],['msgs','Chat','chat'],['health','Health','pulse']],cg:[['jobs','Jobs','bag'],['sched','Schedule','cal'],['earn','Earnings','wallet']]};
+const cur=()=>ST.stack.length?ST.stack[ST.stack.length-1]:{v:ST.tab};
+
+/* ---------- shell ---------- */
+function applyLook(){const r=document.documentElement;r.dataset.pal=S.pal;r.dataset.theme=S.dark?'dark':'light';r.dataset.shape=S.shape}
+function looks(){return `<div class="lab" style="margin-top:12px">Colour</div><div class="dots">${PALS.map(p=>`<button class="dotb ${S.pal===p[0]?'on':''}" style="background:${p[2]}" data-act="pal" data-v="${p[0]}" aria-label="${p[1]}" title="${p[1]}"></button>`).join('')}</div>
+ <div class="lab">Mode</div><div class="chips"><button class="chip ${!S.dark?'on':''}" data-act="dark" data-v="0">Light</button><button class="chip ${S.dark?'on':''}" data-act="dark" data-v="1">Dark</button></div>
+ <div class="lab">Corners</div><div class="chips"><button class="chip ${S.shape==='soft'?'on':''}" data-act="shape" data-v="soft">Soft</button><button class="chip ${S.shape==='sharp'?'on':''}" data-act="shape" data-v="sharp">Sharp</button></div>`}
+const panelHTML=()=>`<h3>Design controls</h3><p class="mut" style="font-size:14px">Try each look live, then tell us which one you love.</p>${looks()}<button class="btn o sm full" style="margin-top:18px" data-act="restart">Restart demo</button>`;
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2200)}
+function sheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#ov').classList.add('on')}
+const close=()=>$('#ov').classList.remove('on');
+$('#ov').addEventListener('click',e=>{if(e.target.id==='ov')close()});
+const navHTML=()=>NAVS[S.role].map(n=>`<button class="${ST.tab===n[0]?'on':''}" data-act="tab" data-v="${n[0]}">${ic(n[2])}${n[1]}${n[0]==='msgs'&&unread()?`<i class="badge">${unread()}</i>`:''}</button>`).join('');
+function draw(keep){
+ clearInterval(ST.tmr);
+ const old=$('#cur'),y=keep&&old?old.scrollTop:0,c=cur(),html=V[c.v](c.a);
+ $('#main').innerHTML=FULL.includes(c.v)?html:`<section class="scr ${FLUSH.includes(c.v)?'p0':''}" id="cur">${html}</section>`;
+ const show=ST.stage==='app'&&!ST.stack.length,nv=$('#nav');nv.className='nav'+(show?' on':'');if(show)nv.innerHTML=navHTML();
+ const e=$('#cur');if(e)e.scrollTop=y;
+ if(c.v==='thread')e.scrollTop=e.scrollHeight;
+ if(c.v==='track')startTrack(c.a);
+ $('#panel').innerHTML=panelHTML();
+}
+const push=(v,a)=>{ST.stack.push({v,a});draw()};
+const back=()=>{ST.stack.pop();draw()};
+const goTab=t=>{ST.tab=t;ST.stack=[];draw()};
+document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(a&&A[a.dataset.act])A[a.dataset.act](a.dataset.v,a,e)});
+setInterval(()=>{const c=$('#clk');if(c)c.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})},20000);
+$('#clk').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+const hdr=(t,r='')=>`<div class="top"><div class="row"><button class="ib" data-act="back" aria-label="Back">${ic('back')}</button><h1>${t}</h1></div>${r}</div>`;
+A.tab=v=>goTab(v);A.back=()=>back();A.go=v=>push(v);
+A.pal=v=>{S.pal=v;applyLook();draw(true)};A.dark=v=>{S.dark=v==='1';applyLook();draw(true)};A.shape=v=>{S.shape=v;applyLook();draw(true)};
+A.restart=()=>{ST.stage='onb';ST.slide=0;ST.stack=[];S.role='client';draw()};
+A.switch=()=>{S.role=S.role==='cg'?'client':'cg';ST.tab=S.role==='cg'?'jobs':'home';ST.stack=[];draw()};
+A.close=()=>close();
+
+/* ---------- onboarding ---------- */
+const SL=[
+ {t:'Care that comes to you',d:'Nurses, doctors, physios and caregivers at your door, in Lusaka.',s:'<circle cx="120" cy="120" r="100" style="fill:var(--soft)"/><path d="M60 125l60-50 60 50v55a6 6 0 0 1-6 6H66a6 6 0 0 1-6-6z" style="fill:var(--solid);stroke:var(--p)" stroke-width="5" stroke-linejoin="round"/><path d="M120 105v40M100 125h40" style="stroke:var(--a)" stroke-width="10" stroke-linecap="round"/>'},
+ {t:'See a doctor on video',d:'Skip the queue. Talk to a doctor, dietician or therapist from home.',s:'<circle cx="120" cy="120" r="100" style="fill:var(--soft)"/><rect x="82" y="50" width="76" height="140" rx="14" style="fill:var(--solid);stroke:var(--p)" stroke-width="5"/><circle cx="120" cy="105" r="20" style="fill:var(--p)"/><path d="M88 160c5-18 19-24 32-24s27 6 32 24" style="fill:var(--p)"/><circle cx="168" cy="72" r="14" style="fill:var(--a)"/><path d="M162 72l4 4 8-8" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>'},
+ {t:'Trusted, verified caregivers',d:'Every provider is ID, licence and background checked. Rated by real families.',s:'<circle cx="120" cy="120" r="100" style="fill:var(--soft)"/><path d="M120 44l62 22v48c0 38-26 62-62 72-36-10-62-34-62-72V66z" style="fill:var(--solid);stroke:var(--p)" stroke-width="5" stroke-linejoin="round"/><path d="M92 120l20 20 38-40" fill="none" style="stroke:var(--a)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>'}];
+V.onb=()=>{const s=SL[ST.slide],last=ST.slide===SL.length-1;return `<div class="onb"><div class="ill"><svg viewBox="0 0 240 240" aria-hidden="true">${s.s}</svg></div><h1 class="ctr">${s.t}</h1><p class="mut ctr" style="margin-top:8px">${s.d}</p><div class="dts">${SL.map((_,i)=>`<i class="${i===ST.slide?'on':''}"></i>`).join('')}</div><button class="btn full" data-act="onext">${last?'Get started':'Next'}</button>${last?'':'<button class="btn sm" style="background:none;color:var(--mut);margin:8px auto 0;display:flex" data-act="oskip">Skip</button>'}</div>`};
+A.onext=()=>{if(ST.slide<SL.length-1){ST.slide++;draw()}else{ST.stage='role';draw()}};A.oskip=()=>{ST.stage='role';draw()};
+V.role=()=>`<div class="onb"><h1>Welcome to Bushemi</h1><p class="mut" style="margin:6px 0 18px">How would you like to use the app?</p>
+ <button class="rdo" data-act="pick" data-v="client" style="padding:18px"><span class="ib" style="box-shadow:none;background:var(--soft);color:var(--p)">${ic('heart')}</span><div class="b"><b>I need care</b><small>Book care for me or my family</small></div>${ic('back').replace('<svg class="i "','<svg class="i " style="transform:rotate(180deg)"')}</button>
+ <button class="rdo" data-act="pick" data-v="cg" style="padding:18px"><span class="ib" style="box-shadow:none;background:var(--grns);color:var(--grn)">${ic('bag')}</span><div class="b"><b>I am a caregiver</b><small>Get jobs, set your hours, earn</small></div>${ic('back').replace('<svg class="i "','<svg class="i " style="transform:rotate(180deg)"')}</button>
+ <p class="muted ctr" style="margin-top:14px;color:var(--mut);font-size:13px">Demo mode: sign in and sign up screens are the same as v3 and skipped here.</p></div>`;
+A.pick=v=>{S.role=v==='cg'?'cg':'client';ST.stage='app';ST.tab=S.role==='cg'?'jobs':'home';ST.stack=[];draw()};
+
+/* ---------- client home ---------- */
+const cmpA=(a,b)=>dOf(a.d)-dOf(b.d);
+const nextCard=a=>{const p=PV(a.pid),s=svOf(a.svc),live=a.st==='On the way';
+ return `<div class="hero"><div class="between"><span class="pill pw">${live?'● On the way':'Next visit'}</span><span>${a.d===dkey(TODAY)?'Today':fmt(dOf(a.d))}, ${a.tm}</span></div><div class="hl">${s.full}</div><div class="hsub">with ${p.n} for ${esc(a.who)}</div>
+ <div class="row" style="margin-top:14px">${live?`<button class="btn w sm" data-act="track" data-v="${a.id}">${ic('map','sm')} Track live</button>`:`<button class="btn w sm" data-act="tab" data-v="appts">View booking</button>`}<button class="btn gl sm" data-act="chat" data-v="${p.id}">${ic('chat','sm')} Message</button></div></div>`};
+V.home=()=>{const nx=S.appts.filter(a=>!['Completed','Cancelled'].includes(a.st)).sort(cmpA)[0],bp=S.vit.bp,bd=S.vit.bpd,sg=S.vit.sugar;
+ return `<div class="top"><button class="who" data-act="go" data-v="me">${av(S.user.name,PIC+'women/65.jpg',46)}<span><small>${greeting()}</small><b>${esc(first())}</b></span></button><div class="tr"><button class="ib" data-act="sos" aria-label="Emergency" style="color:var(--red)">${ic('sos')}</button><button class="ib" data-act="notif" aria-label="Notifications">${ic('bell')}<i class="nd"></i></button></div></div>
+ <button class="loc" data-act="locs">${ic('pin','sm')} ${esc(S.loc)} ▾</button>
+ <button class="search" data-act="tab" data-v="find">${ic('search')}<span>Search nurses, doctors, caregivers</span></button>
+ ${nx?nextCard(nx):''}
+ <h2>What do you need?</h2><div class="g4">${SV.map(s=>`<button class="tile" data-act="svcf" data-v="${s.id}"><span class="ti" style="background:linear-gradient(135deg,${s.c},${s.c}bb)">${ic(s.i)}</span>${s.n}</button>`).join('')}</div>
+ <h2>Available now <a data-act="tab" data-v="find">See all</a></h2><div class="hs">${P.filter(p=>p.today).map(p=>`<button class="mini" data-act="prof" data-v="${p.id}">${av(p.n,p.ph,64)}<b>${p.n.split(' ')[0]}</b><small>${p.role}</small><span class="rt">${ic('star','st')}${p.r}</span></button>`).join('')}</div>
+ <h2>My health <a data-act="tab" data-v="health">Open</a></h2><div class="card"><div class="row" style="gap:20px"><div style="flex:1"><small>Blood pressure</small><div style="font-size:22px;font-weight:800">${bp[bp.length-1]}/${bd[bd.length-1]}</div></div><div style="flex:1"><small>Blood sugar</small><div style="font-size:22px;font-weight:800">${sg[sg.length-1]} <small>mmol/L</small></div></div></div>${spark(bp,'var(--p)')}</div>
+ <h2>Today's medicines</h2><div class="card">${S.meds.map(m=>medRow(m)).join('')}</div>
+ ${S.voucherUsed?'':`<div class="promo"><b>10% off your first booking</b><p>Use code ${VOUCHER} when you pay.</p><button class="btn w sm" data-act="svcf" data-v="all">Book now</button>${ic('gift')}</div>`}`};
+const medRow=m=>`<div class="li"><span class="ib" style="box-shadow:none;background:var(--soft);color:var(--p);width:42px;height:42px">${ic('pill','sm')}</span><div class="b"><b>${m.n}</b><small>${m.dose} · ${m.time}</small></div><button class="sw ${m.taken?'on':''}" data-act="med" data-v="${m.id}" role="switch" aria-checked="${m.taken}" aria-label="Taken: ${m.n}"></button></div>`;
+A.med=v=>{const m=S.meds.find(x=>x.id==v);m.taken=!m.taken;draw(true);if(m.taken)toast(m.n+' marked as taken')};
+A.svcf=v=>{S.f=v;S.q='';goTab('find')};
+A.prof=v=>push('prof',+v);
+A.chat=v=>{const id=+v;if(!S.threads[id])S.threads[id]=[];delete S.unread[id];push('thread',id)};
+A.track=v=>push('track',+v);
+A.fav=(v,b,e)=>{const id=+v,i=S.fav.indexOf(id);if(i>-1)S.fav.splice(i,1);else S.fav.push(id);draw(true)};
+A.sos=()=>sheet(`<div class="ctr"><div class="tick" style="background:var(--redsoft);color:var(--red)">${ic('sos')}</div><h1>Emergency help</h1><p class="mut" style="margin:6px 0 16px">If someone is in danger, call the emergency number now.</p></div><div style="display:grid;gap:10px"><a class="btn sos" href="tel:112">${ic('phone')} Call 112 emergency</a><a class="btn o" href="tel:+260973702227">${ic('phone')} Call Bushemi 24 hours</a><button class="btn o" data-act="shareloc">${ic('pin')} Share my location with family</button><button class="btn" style="background:none;color:var(--mut)" data-act="close">Close</button></div>`);
+A.shareloc=()=>{close();toast('Location sent to your family contacts')};
+A.notif=()=>sheet(`<h1>Notifications</h1>${[['Grace is on the way to your mother\'s house','2 min ago'],['Reminder: take Metformin at 13:00','Today'],['Your doctor call is in 2 days','Yesterday']].map(n=>`<div class="li"><span class="ib" style="box-shadow:none;background:var(--soft);color:var(--p);width:42px;height:42px">${ic('bell','sm')}</span><div class="b"><b style="font-size:15px">${n[0]}</b><small>${n[1]}</small></div></div>`).join('')}`);
+A.locs=()=>sheet(`<h1>Where do you need care?</h1>${S.addrs.map(a=>`<button class="rdo ${S.loc===a.a?'on':''}" data-act="setloc" data-v="${esc(a.a)}"><div class="b"><b>${esc(a.n)}</b><small>${esc(a.a)}</small></div><span class="rd"></span></button>`).join('')}<button class="btn o full" data-act="addaddr">+ Add a new address</button>`);
+A.setloc=v=>{S.loc=v;close();draw(true)};
+A.addaddr=()=>sheet(`<h1>Add an address</h1><label for="an">Name</label><input id="an" placeholder="For example: Office"><label for="aa">Area and street</label><input id="aa" placeholder="Area in Lusaka"><button class="btn o full" style="margin-top:12px" data-act="gps">Use my current location</button><button class="btn full" style="margin-top:10px" data-act="saveaddr">Save address</button>`);
+A.gps=()=>{$('#aa').value='Chalala, near Hillview';toast('Location found')};
+A.saveaddr=()=>{S.addrs.push({n:$('#an').value||'New address',a:$('#aa').value||'Lusaka'});close();toast('Address saved');draw(true)};
+
+/* ---------- find ---------- */
+const FCH=[['all','All'],...SV.map(s=>[s.id,s.n])];
+function plist(){let l=P.filter(p=>(S.f==='all'||p.svc.includes(S.f))&&(!S.todayOnly||p.today)&&(!S.q||(p.n+' '+p.role+' '+p.area).toLowerCase().includes(S.q.toLowerCase())));
+ l.sort((a,b)=>S.sort==='price'?minP(a)-minP(b):S.sort==='exp'?b.yrs-a.yrs:b.r-a.r);
+ return l.length?l.map(pcard).join(''):`<div class="card ctr"><p class="mut">No providers match. Try another filter.</p></div>`}
+const pcard=p=>`<div class="pc" data-act="prof" data-v="${p.id}">${av(p.n,p.ph,60)}<div class="b"><div class="nm">${p.n} ${ic('shield','vf')}</div><small>${p.role}</small><div class="meta">${ic('star','st')}<b>${p.r}</b> (${p.rv}) · ${p.area}</div><div class="meta">${p.today?'<span class="dot on"></span>Available today':'<span class="dot"></span>From tomorrow'} · from ${kw(minP(p))}</div></div><button class="fav ${S.fav.includes(p.id)?'on':''}" data-act="fav" data-v="${p.id}" aria-label="Save ${p.n}">${ic('heart')}</button></div>`;
+V.find=()=>`<div class="top"><h1>Find care</h1></div><input id="q" type="search" placeholder="Name, role or area" value="${esc(S.q)}" aria-label="Search">
+ <div class="hs" style="margin:12px 0 8px">${FCH.map(c=>`<button class="chip ${S.f===c[0]?'on':''}" data-act="ff" data-v="${c[0]}">${c[1]}</button>`).join('')}</div>
+ <div class="between" style="margin-bottom:12px"><button class="chip ${S.todayOnly?'on':''}" data-act="tod">Available today</button><select id="srt" style="width:150px;min-height:40px;padding:6px 10px" aria-label="Sort"><option value="rating" ${S.sort==='rating'?'selected':''}>Top rated</option><option value="price" ${S.sort==='price'?'selected':''}>Lowest price</option><option value="exp" ${S.sort==='exp'?'selected':''}>Most experience</option></select></div>
+ <div id="plist">${plist()}</div>`;
+A.ff=v=>{S.f=v;draw(true)};A.tod=()=>{S.todayOnly=!S.todayOnly;draw(true)};
+document.addEventListener('input',e=>{if(e.target.id==='q'){S.q=e.target.value;$('#plist').innerHTML=plist()}});
+document.addEventListener('change',e=>{if(e.target.id==='srt'){S.sort=e.target.value;$('#plist').innerHTML=plist()}if(e.target.id==='lng'){S.lang=e.target.value;toast('Language set to '+S.lang+' (preview only)')}});
+
+/* ---------- provider profile ---------- */
+const slotOff=(p,dk,t)=>{if(dk===dkey(TODAY)){if(!p.today)return true;return +t.slice(0,2)<=new Date().getHours()}return hash(p.id+dk+t)%4===0};
+const freeCount=(p,d)=>SLOTS.filter(t=>!slotOff(p,dkey(d),t)).length;
+V.prof=id=>{const p=PV(id),fv=S.fav.includes(p.id),rv=[REV[id%3],REV[(id+1)%3],REV[(id+2)%3]];
+ return `<div class="phero"><button class="ib gl2" data-act="back" aria-label="Back">${ic('back')}</button><button class="ib gl2 fav ${fv?'on':''}" data-act="fav" data-v="${p.id}" aria-label="Save">${ic('heart')}</button></div>
+ <div class="pbody"><div class="pav">${av(p.n,p.ph,96)}</div><h1 class="ctr">${p.n} ${ic('shield','vf')}</h1><p class="mut ctr">${p.role} · ${p.area}</p>
+ <div class="stats"><div><b>${p.yrs}</b><small>years</small></div><div><b>${p.r}</b><small>${p.rv} reviews</small></div><div><b>${p.visits}</b><small>visits</small></div></div>
+ <h3>About</h3><p class="mut">${p.bio}</p>
+ <h3>Verified by Bushemi</h3><div class="card"><div class="vrow">${ic('check','sm')} ID checked</div><div class="vrow">${ic('check','sm')} Professional licence checked</div><div class="vrow">${ic('check','sm')} Police clearance and references</div></div>
+ <h3>Services</h3>${p.svc.map(i=>{const s=svOf(i);return `<div class="li"><span class="ib" style="box-shadow:none;background:${s.c}22;color:${s.c};width:42px;height:42px">${ic(s.i,'sm')}</span><div class="b"><b>${s.full}</b><small>${s.mode==='tele'?'Video call':'At your home'}</small></div><b>${kw(s.p)}</b></div>`}).join('')}
+ <h3>Languages</h3><div class="chips">${p.langs.map(l=>`<span class="pill pb">${l}</span>`).join('')}</div>
+ <h3>This week</h3><div class="hs">${[0,1,2,3,4,5,6].map(i=>{const d=addD(TODAY,i),n=freeCount(p,d);return `<div class="day" style="cursor:default"><small>${wd(d)}</small><b>${d.getDate()}</b><small style="color:${n?'var(--grn)':'var(--red)'}">${n?n+' free':'full'}</small></div>`}).join('')}</div>
+ ${p.svc.includes('care')?`<button class="btn o full" style="margin-top:16px" data-act="place">Request live-in placement</button>`:''}
+ <h3>Reviews</h3>${rv.map(r=>`<div class="rev"><div class="between"><b>${r[0]}</b><span class="rt">${ic('star','st').repeat(r[2])}</span></div><p class="mut" style="margin-top:4px">${r[1]}</p></div>`).join('')}</div>
+ <div class="bar2"><button class="btn o" data-act="chat" data-v="${p.id}">${ic('chat','sm')} Chat</button><button class="btn" data-act="book" data-v="${p.id}">Book from ${kw(minP(p))}</button></div>`};
+A.place=()=>sheet(`<h1>Live-in or long-term care</h1><p class="mut" style="margin:6px 0 10px">Bushemi matches you with a checked caregiver and manages the placement.</p><div class="card" style="box-shadow:none;border:1px solid var(--line)">${[['Inquiry fee',FEES.inquiry],['First month of care',FEES.firstMonth],['Each month after that',FEES.monthly]].map(f=>`<div class="li"><div class="b">${f[0]}</div><b>${kw(f[1])}</b></div>`).join('')}</div><button class="btn full" data-act="placesub">Submit request</button>`);
+A.placesub=()=>{close();toast('Request received. We will call you today.')};
+
+/* ---------- booking ---------- */
+A.book=v=>{const p=PV(v);B={pid:p.id,svc:p.svc[0],day:dkey(addD(TODAY,p.today?0:1)),tm:null,who:S.fam[0].n,addr:S.addrs[0].a,note:'',voucher:false,rep:1,pay:'mtn'};push('book')};
+const bTotal=()=>{const t=svOf(B.svc).p*B.rep,d=B.voucher?Math.round(t*.1):0;return{t,d,n:t-d}};
+V.book=()=>{const p=PV(B.pid),s=svOf(B.svc),tele=s.mode==='tele',days=[...Array(10)].map((_,i)=>addD(TODAY,i)),tt=bTotal();
+ if(B.tm&&slotOff(p,B.day,B.tm))B.tm=null;
+ return hdr('Book')+`<div class="card"><div class="row">${av(p.n,p.ph,52)}<div><b>${p.n}</b> ${ic('shield','vf')}<br><small>${p.role}</small></div></div></div>
+ ${p.svc.length>1?`<div class="lab" style="margin-top:0">Service</div><div class="chips">${p.svc.map(i=>`<button class="chip ${B.svc===i?'on':''}" data-act="bsv" data-v="${i}">${svOf(i).full}</button>`).join('')}</div>`:''}
+ <div class="lab">Who is it for?</div><div class="chips">${S.fam.map(f=>`<button class="chip ${B.who===f.n?'on':''}" data-act="bwho" data-v="${esc(f.n)}">${esc(f.n)}</button>`).join('')}</div>
+ <div class="lab">Day</div><div class="days">${days.map(d=>`<button class="day ${dkey(d)===B.day?'on':''}" data-act="bday" data-v="${dkey(d)}"><small>${wd(d)}</small><b>${d.getDate()}</b><small>${mo(d)}</small></button>`).join('')}</div>
+ <div class="lab">Time</div><div class="chips">${SLOTS.map(t=>`<button class="chip ${B.tm===t?'on':''}" data-act="btm" data-v="${t}" ${slotOff(p,B.day,t)?'disabled':''}>${t}</button>`).join('')}</div>
+ <div class="lab">Repeat</div><div class="chips">${[[1,'Just once'],[2,'Weekly, 2 weeks'],[4,'Weekly, 4 weeks']].map(r=>`<button class="chip ${B.rep===r[0]?'on':''}" data-act="brep" data-v="${r[0]}">${r[1]}</button>`).join('')}</div>
+ ${tele?`<div class="card" style="margin-top:14px;background:var(--grns);box-shadow:none"><b>No address needed</b><p class="mut">You join by video. Keep data or Wi-Fi ready.</p></div>`:`<div class="lab">Where?</div>${S.addrs.map(a=>`<button class="rdo ${B.addr===a.a?'on':''}" data-act="baddr" data-v="${esc(a.a)}"><div class="b"><b>${esc(a.n)}</b><small>${esc(a.a)}</small></div><span class="rd"></span></button>`).join('')}`}
+ <label for="bn">Note (optional)</label><textarea id="bn" placeholder="Gate colour, landmark, what care is needed">${esc(B.note)}</textarea>
+ <label for="bv">Voucher code</label><div class="row"><input id="bv" placeholder="${VOUCHER}" value="${B.voucher?VOUCHER:''}"><button class="btn o sm" style="flex:none" data-act="bvc">Apply</button></div>
+ <div class="lab">Pay with</div><div class="chips">${Object.keys(KINDS).map(k=>`<button class="chip ${B.pay===k?'on':''}" data-act="bpay" data-v="${k}">${KINDS[k][0]}</button>`).join('')}</div>
+ ${B.pay==='card'?`<label for="cn">Card number</label><input id="cn" value="4242 4242 4242 4242"><div class="row"><div style="flex:1"><label for="ce">Expiry</label><input id="ce" value="08/29"></div><div style="flex:1"><label for="cv">CVV</label><input id="cv" type="password" value="123"></div></div>`:B.pay==='cash'?`<p class="mut" style="margin-top:8px">Pay at the clinic or at the visit. Held for 48 hours.</p>`:`<label for="mn">Mobile money number</label><input id="mn" type="tel" value="${KINDS[B.pay][1]}">`}
+ <div class="card" style="margin-top:16px"><div class="li"><div class="b">${s.full} × ${B.rep}</div><b>${kw(tt.t)}</b></div>${tt.d?`<div class="li" style="color:var(--grn)"><div class="b">Voucher ${VOUCHER}</div><b>-${kw(tt.d)}</b></div>`:''}<div class="tot"><span>Total</span><span>${kw(tt.n)}</span></div></div>
+ <button class="btn ac full" data-act="bgo" ${B.tm?'':'disabled'}>${B.tm?(B.pay==='cash'?'Reserve':'Pay '+kw(tt.n)):'Choose a time to continue'}</button>`};
+const bsave=()=>{const n=$('#bn');if(n)B.note=n.value};
+A.bsv=v=>{bsave();B.svc=v;draw(true)};A.bwho=v=>{bsave();B.who=v;draw(true)};A.bday=v=>{bsave();B.day=v;draw(true)};A.btm=v=>{bsave();B.tm=v;draw(true)};
+A.brep=v=>{bsave();B.rep=+v;draw(true)};A.baddr=v=>{bsave();B.addr=v;draw(true)};A.bpay=v=>{bsave();B.pay=v;draw(true)};
+A.bvc=()=>{bsave();const c=$('#bv').value.trim().toUpperCase();B.voucher=c===VOUCHER;toast(B.voucher?'10% off applied':'That code is not valid');draw(true)};
+A.bgo=()=>{bsave();const p=PV(B.pid),s=svOf(B.svc),tt=bTotal();
+ sheet(`<div class="ctr"><div class="spin"></div><h1>${B.pay==='cash'?'Reserving':'Processing payment'}</h1><p class="sub mut">${kw(tt.n)} to Bushemi Clinic.${B.pay==='cash'?'':' Approve it with your PIN on your phone.'}</p></div>`);
+ setTimeout(()=>{for(let i=0;i<B.rep;i++)S.appts.push({id:Date.now()+i,pid:p.id,svc:B.svc,who:B.who,d:dkey(addD(dOf(B.day),7*i)),tm:B.tm,st:'Booked',addr:s.mode==='tele'?'':B.addr,amt:Math.round(tt.n/B.rep)});
+  if(B.voucher)S.voucherUsed=true;
+  sheet(`<div class="ctr"><div class="tick">${ic('check')}</div><h1>${B.pay==='cash'?'Booking reserved':'Booking confirmed'}</h1><p class="mut" style="margin:6px 0">${s.full} with ${p.n}<br>${fmt(dOf(B.day))}, ${B.tm}${B.rep>1?' · weekly for '+B.rep+' weeks':''}</p><p class="mut">You will get a reminder before each visit.</p><button class="btn full" style="margin-top:14px" data-act="bdone">See my bookings</button></div>`)},1900)};
+A.bdone=()=>{close();S.tab2='Upcoming';goTab('appts')};
+
+/* ---------- bookings ---------- */
+const STC={Booked:'pb',Confirmed:'pg','On the way':'pa','On hold':'pa',Completed:'pb',Cancelled:'pr'};
+V.appts=()=>{const past=['Completed','Cancelled'],list=S.appts.filter(a=>S.tab2==='Past'?past.includes(a.st):!past.includes(a.st)).sort(cmpA);if(S.tab2==='Past')list.reverse();
+ return `<div class="top"><h1>Bookings</h1></div><div class="tabs">${['Upcoming','Past'].map(t=>`<button class="${S.tab2===t?'on':''}" data-act="atab" data-v="${t}">${t}</button>`).join('')}</div>
+ ${list.length?list.map(a=>{const s=svOf(a.svc),p=PV(a.pid),d=dOf(a.d);return `<div class="card"><div class="row"><div class="date">${d.getDate()}<small>${mo(d)}</small></div><div style="flex:1"><b>${s.full}</b><br><small>${p.n} · ${a.tm}</small></div><span class="pill ${STC[a.st]}">${a.st}</span></div>
+  <div class="row" style="margin-top:12px;flex-wrap:wrap">${S.tab2==='Past'?`${a.sum?`<button class="btn sm o" data-act="sum" data-v="${a.id}">Summary</button>`:''}${a.rated?`<span class="pill pg">Rated ${a.rated} ★</span>`:`<button class="btn sm" data-act="rate" data-v="${a.id}">Rate visit</button>`}<button class="btn sm o" data-act="book" data-v="${p.id}">Book again</button>`:
+  `${a.st==='On the way'?`<button class="btn sm" data-act="track" data-v="${a.id}">Track</button>`:''}${s.mode==='tele'&&a.st==='Confirmed'?`<button class="btn sm" data-act="join">Join call</button>`:''}<button class="btn sm o" data-act="chat" data-v="${p.id}">Chat</button><button class="btn sm o" data-act="resch" data-v="${a.id}">Move</button><button class="btn sm r" data-act="canc" data-v="${a.id}">Cancel</button>`}</div></div>`}).join(''):`<div class="card ctr"><p class="mut">${S.tab2==='Past'?'No past bookings yet.':'Nothing booked yet.'}</p><button class="btn sm" style="margin-top:10px" data-act="tab" data-v="find">Find care</button></div>`}`};
+A.atab=v=>{S.tab2=v;draw(true)};
+A.canc=v=>sheet(`<h1>Cancel this booking?</h1><p class="mut" style="margin:6px 0 14px">You can book again at any time.</p><div style="display:grid;gap:10px"><button class="btn r" data-act="cancyes" data-v="${v}">Yes, cancel</button><button class="btn o" data-act="close">Keep it</button></div>`);
+A.cancyes=v=>{S.appts.find(a=>a.id==v).st='Cancelled';close();draw(true);toast('Booking cancelled')};
+A.resch=v=>sheet(`<h1>Pick a new day</h1><div class="chips" style="margin:12px 0">${[1,2,3,4,5,6,7].map(i=>addD(TODAY,i)).map(d=>`<button class="chip" data-act="reschd" data-v="${v}|${dkey(d)}">${fmt(d)}</button>`).join('')}</div>`);
+A.reschd=v=>{const[i,d]=v.split('|'),a=S.appts.find(x=>x.id==i);a.d=d;if(a.st==='On the way')a.st='Booked';close();draw(true);toast('Booking moved')};
+A.sum=v=>{const a=S.appts.find(x=>x.id==v);sheet(`<h1>Visit summary</h1><p class="mut">${svOf(a.svc).full}, ${fmt(dOf(a.d))}</p><p style="margin:10px 0 16px">${a.sum}</p><div class="row"><button class="btn o" data-act="receipt" data-v="${v}">Receipt</button><button class="btn" data-act="close">Close</button></div>`)};
+A.receipt=v=>{const a=S.appts.find(x=>x.id==v);sheet(`<h1>Receipt</h1><div class="card" style="box-shadow:none;border:1px solid var(--line);margin-top:10px"><div class="li"><div class="b">${svOf(a.svc).full}</div><b>${kw(a.amt)}</b></div><div class="li"><div class="b">Provider</div><span>${PV(a.pid).n}</span></div><div class="li"><div class="b">Date</div><span>${fmt(dOf(a.d))}</span></div></div><button class="btn full" data-act="close">Close</button>`)};
+A.rate=v=>{S.rt=5;rateSheet(v)};
+const rateSheet=v=>sheet(`<div class="ctr"><h1>How was your visit?</h1><div class="row" style="justify-content:center;margin:14px 0">${[1,2,3,4,5].map(n=>`<button class="ib" style="box-shadow:none;background:none" data-act="star" data-v="${v}|${n}" aria-label="${n} stars"><svg class="i" viewBox="0 0 24 24" style="width:36px;height:36px;fill:${n<=S.rt?'#F5A623':'none'};stroke:#F5A623">${IC.star}</svg></button>`).join('')}</div></div><textarea placeholder="Tell others about your experience (optional)"></textarea><button class="btn full" style="margin-top:12px" data-act="rsave" data-v="${v}">Submit review</button>`);
+A.star=v=>{const[i,n]=v.split('|');S.rt=+n;rateSheet(i)};
+A.rsave=v=>{S.appts.find(a=>a.id==v).rated=S.rt;close();draw(true);toast('Thank you for your review')};
+A.join=()=>sheet(`<div class="ctr"><div class="spin"></div><h1>Joining your call</h1><p class="mut" style="margin:6px 0 14px">The video opens when your doctor is ready. Check your camera and microphone.</p><button class="btn o" data-act="close">Close</button></div>`);
+
+/* ---------- live tracking ---------- */
+const ROUTE='M32 196 C 90 176 70 118 140 106 S 252 98 304 40';
+V.track=id=>{const a=S.appts.find(x=>x.id===id),p=PV(a.pid);
+ return hdr('Live tracking')+`<div class="map"><svg viewBox="0 0 340 230" aria-label="Map showing ${p.n} on the way"><g style="stroke:var(--line)" stroke-width="10" fill="none" stroke-linecap="round"><path d="M0 60H340M0 130H340M0 200H340M60 0V230M170 0V230M280 0V230"/></g><path id="rt" d="${ROUTE}" fill="none" style="stroke:var(--p)" stroke-width="5" stroke-dasharray="2 9" stroke-linecap="round"/><g transform="translate(304 40)"><circle r="16" style="fill:var(--a)"/><path d="M-6 0l4 4 8-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g><g id="mk"><circle r="22" style="fill:var(--p)" opacity=".2"/><circle r="11" style="fill:var(--p)" stroke="#fff" stroke-width="3"/></g></svg></div>
+ <div class="card"><div class="row">${av(p.n,p.ph,56)}<div style="flex:1"><b>${p.n}</b> ${ic('shield','vf')}<br><small>${p.role}</small></div><a class="ib" href="tel:+260973702227" aria-label="Call">${ic('phone')}</a><button class="ib" data-act="chat" data-v="${p.id}" aria-label="Chat">${ic('chat')}</button></div>
+ <div class="between" style="margin-top:14px"><div><small>Arriving in</small><div style="font-size:30px;font-weight:800" id="eta">--</div></div><span class="pill pa" id="tst">On the way</span></div></div>
+ <div class="card"><ul class="tl" id="tl"><li class="d"><i>✓</i><b>Booking accepted</b><span>${p.n} confirmed</span></li><li class="n" id="s2"><i>2</i><b>On the way</b><span>Heading to ${esc(a.addr||'you')}</span></li><li id="s3"><i>3</i><b>Arrived</b><span>Welcome ${p.n.split(' ')[0]} in</span></li><li id="s4"><i>4</i><b>Visit complete</b><span>Summary and receipt sent to you</span></li></ul></div>`};
+function startTrack(id){const path=$('#rt'),mk=$('#mk');if(!path)return;const len=path.getTotalLength();if(ST.prog[id]==null)ST.prog[id]=.25;
+ const tick=()=>{const pr=ST.prog[id],pt=path.getPointAtLength(len*pr);mk.setAttribute('transform',`translate(${pt.x} ${pt.y})`);
+  const m=Math.max(0,Math.ceil((1-pr)*18)),eta=$('#eta');if(!eta){clearInterval(ST.tmr);return}
+  eta.textContent=pr>=1?'Arrived':m+' min';$('#tst').textContent=pr>=1?'Arrived':'On the way';
+  $('#s2').className=pr>=1?'d':'n';$('#s3').className=pr>=1?'n':'';
+  if(pr<1)ST.prog[id]=Math.min(1,pr+.03);else clearInterval(ST.tmr)};
+ tick();ST.tmr=setInterval(tick,1200)}
+
+/* ---------- messages ---------- */
+V.msgs=()=>{const ids=Object.keys(S.threads).map(Number);
+ return `<div class="top"><h1>Messages</h1></div>${ids.length?ids.map(id=>{const p=PV(id),t=S.threads[id],l=t[t.length-1];return `<div class="pc" data-act="chat" data-v="${id}">${av(p.n,p.ph,52)}<div class="b"><div class="nm">${p.n}</div><small style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l?esc((l.f==='me'?'You: ':'')+l.t):'Say hello'}</small></div>${S.unread[id]?'<span class="pill pr">New</span>':''}</div>`}).join(''):'<div class="card ctr"><p class="mut">No conversations yet. Open a provider and tap Chat.</p></div>'}
+ <p class="mut" style="font-size:13px;margin-top:10px">Chat inside the app keeps your phone number private.</p>`};
+V.thread=id=>{const p=PV(id),t=S.threads[id];
+ return `<div class="thh"><button class="ib" data-act="back" aria-label="Back">${ic('back')}</button>${av(p.n,p.ph,42)}<div class="b"><b>${p.n}</b><br><small>${p.today?'Online':'Replies within the hour'}</small></div><a class="ib" href="tel:+260973702227" aria-label="Call">${ic('phone')}</a></div>
+ <section class="scr" id="cur" style="padding-bottom:10px">${t.map(m=>`<div class="bub ${m.f}">${esc(m.t)}<small>${m.m}</small></div>`).join('')||'<p class="mut ctr" style="margin-top:20px">Start the conversation</p>'}</section>
+ <div class="hs" style="padding:6px 12px 0;background:var(--bg)">${['I am at the gate','Running a little late','Thank you!'].map(q=>`<button class="chip" data-act="quick" data-v="${q}">${q}</button>`).join('')}</div>
+ <div class="comp"><input id="msg" placeholder="Type a message" aria-label="Message"><button class="btn" data-act="send" aria-label="Send">${ic('send')}</button></div>`};
+const nowT=()=>new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+function sendMsg(txt){const id=cur().a;if(!txt.trim())return;S.threads[id].push({f:'me',t:txt.trim(),m:nowT()});draw();const i=$('#msg');if(i)i.focus();
+ setTimeout(()=>{S.threads[id].push({f:'p',t:REPLIES[hash(txt)%REPLIES.length],m:nowT()});if(cur().v==='thread'&&cur().a===id)draw();else S.unread[id]=1},1300)}
+A.send=()=>sendMsg($('#msg').value);A.quick=v=>sendMsg(v);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='msg')sendMsg(e.target.value)});
+
+/* ---------- health ---------- */
+V.health=()=>{const v=S.vit,L=a=>a[a.length-1];
+ return `<div class="top"><h1>My health</h1><button class="btn sm" data-act="addv">${ic('plus','sm')} Reading</button></div>
+ <div class="card"><div class="vit"><div class="b"><small>Blood pressure</small><br><b class="n">${L(v.bp)}/${L(v.bpd)}</b> <small>mmHg</small></div><div class="sp">${spark(v.bp,'var(--p)')}</div></div></div>
+ <div class="card"><div class="vit"><div class="b"><small>Blood sugar</small><br><b class="n">${L(v.sugar)}</b> <small>mmol/L</small></div><div class="sp">${spark(v.sugar,'var(--a)')}</div></div></div>
+ <div class="card"><div class="vit"><div class="b"><small>Weight</small><br><b class="n">${L(v.weight)}</b> <small>kg</small></div><div class="sp">${spark(v.weight,'#E5533D')}</div></div></div>
+ <button class="btn o full" data-act="shareDoc">Share with my doctor</button>
+ <h2>Medicines <a data-act="addmed">+ Add</a></h2><div class="card">${S.meds.length?S.meds.map(medRow).join(''):'<p class="mut">No medicines added.</p>'}</div>
+ <h2>Reminders</h2><div class="card">${[['push','Phone notifications','Before visits and medicines'],['sms','SMS reminders','Works without data'],['wa','WhatsApp reminders','Updates in WhatsApp']].map(t=>tgl(t[0],t[1],t[2])).join('')}</div>`};
+const tgl=(k,t,s)=>`<div class="li"><div class="b"><b>${t}</b><small>${s}</small></div><button class="sw ${S.tg[k]?'on':''}" data-act="tg" data-v="${k}" role="switch" aria-checked="${S.tg[k]}" aria-label="${t}"></button></div>`;
+A.tg=v=>{S.tg[v]=!S.tg[v];draw(true)};
+A.shareDoc=()=>toast('Sent to Dr. Phiri');
+let VK='bp';
+A.addv=()=>{VK='bp';vitSheet()};
+const vitSheet=()=>sheet(`<h1>Add a reading</h1><div class="chips" style="margin:12px 0">${[['bp','Blood pressure'],['sugar','Blood sugar'],['weight','Weight']].map(k=>`<button class="chip ${VK===k[0]?'on':''}" data-act="vk" data-v="${k[0]}">${k[1]}</button>`).join('')}</div>${VK==='bp'?`<div class="row"><div style="flex:1"><label for="v1">Top (systolic)</label><input id="v1" type="number" value="126"></div><div style="flex:1"><label for="v2">Bottom (diastolic)</label><input id="v2" type="number" value="80"></div></div>`:`<label for="v1">${VK==='sugar'?'Blood sugar (mmol/L)':'Weight (kg)'}</label><input id="v1" type="number" step="0.1" value="${VK==='sugar'?'6.0':'70.0'}">`}<button class="btn full" style="margin-top:14px" data-act="vsave">Save reading</button>`);
+A.vk=v=>{VK=v;vitSheet()};
+A.vsave=()=>{const a=parseFloat($('#v1').value);if(isNaN(a)){toast('Enter a number');return}const q=S.vit;
+ if(VK==='bp'){const b=parseFloat($('#v2').value);if(isNaN(b)){toast('Enter both numbers');return}q.bp.push(a);q.bpd.push(b);if(q.bp.length>12){q.bp.shift();q.bpd.shift()}}else{q[VK].push(a);if(q[VK].length>12)q[VK].shift()}
+ close();draw(true);toast('Reading saved')};
+A.addmed=()=>sheet(`<h1>Add a medicine</h1><label for="mn1">Name</label><input id="mn1" placeholder="For example: Paracetamol"><label for="mn2">Dose</label><input id="mn2" placeholder="500 mg"><label for="mn3">Time</label><input id="mn3" type="time" value="08:00"><button class="btn full" style="margin-top:14px" data-act="medsave">Save</button>`);
+A.medsave=()=>{const n=$('#mn1').value.trim();if(!n){toast('Enter the medicine name');return}S.meds.push({id:Date.now(),n,dose:$('#mn2').value||'1 dose',time:$('#mn3').value||'08:00',taken:false});close();draw(true);toast('Reminder set')};
+
+/* ---------- me ---------- */
+V.me=()=>`${hdr('Profile')}<div class="card ctr"><div style="display:flex;justify-content:center">${av(S.user.name,PIC+'women/65.jpg',88)}</div><h1 style="margin-top:10px">${esc(S.user.name)}</h1><p class="mut">${esc(S.user.phone)}</p></div>
+ <h2>Make it yours</h2><div class="card">${looks()}</div>
+ <h2>Saved providers</h2>${S.fav.length?S.fav.map(id=>pcard(PV(id))).join(''):'<div class="card"><p class="mut">Tap the heart on a provider to save them here.</p></div>'}
+ <h2>Family <a data-act="addfam">+ Add</a></h2><div class="card">${S.fam.map(f=>`<div class="li">${av(f.n,'',42)}<div class="b"><b>${esc(f.n)}</b><small>${esc(f.r)}</small></div></div>`).join('')}</div>
+ <h2>Addresses <a data-act="addaddr">+ Add</a></h2><div class="card">${S.addrs.map(a=>`<div class="li"><div class="b"><b>${esc(a.n)}</b><small>${esc(a.a)}</small></div></div>`).join('')}</div>
+ <h2>Payment methods</h2><div class="card">${S.methods.map(m=>`<div class="li"><span class="ib" style="box-shadow:none;background:var(--soft);color:var(--p);width:42px;height:42px">${ic('wallet','sm')}</span><div class="b"><b>${KINDS[m.k][0]}</b><small>${m.s}</small></div><span class="pill pg">Default</span></div>`).join('')}</div>
+ <h2>Settings</h2><div class="card"><div class="li"><div class="b"><b>Language</b></div><select id="lng" style="width:140px" aria-label="Language">${['English','Nyanja','Bemba'].map(l=>`<option ${S.lang===l?'selected':''}>${l}</option>`).join('')}</select></div></div>
+ <div style="display:grid;gap:10px"><button class="btn o" data-act="switch">Switch to caregiver mode</button><button class="btn r" data-act="restart">Sign out</button></div>`;
+A.addfam=()=>sheet(`<h1>Add a family member</h1><label for="fn">Full name</label><input id="fn"><label for="fr">Relationship</label><select id="fr"><option>Mother</option><option>Father</option><option>Child</option><option>Spouse</option><option>Other</option></select><button class="btn full" style="margin-top:14px" data-act="savefam">Save</button>`);
+A.savefam=()=>{S.fam.push({n:$('#fn').value.trim()||'Family member',r:$('#fr').value});close();draw(true)};
+
+/* ---------- caregiver mode ---------- */
+const DN=['M','T','W','T','F','S','S'];
+V.jobs=()=>{const c=S.cg,wk=c.week.reduce((a,b)=>a+b,0);
+ return `<div class="top"><div><small>Caregiver mode</small><h1>Hi, ${c.name.split(' ')[0]}</h1></div><button class="chip" data-act="switch">Client view</button></div>
+ <div class="hero"><div class="between"><div><div class="hl" style="margin-top:0">${c.on?'You are online':'You are offline'}</div><div class="hsub">${c.on?'Clients can book you now':'Go online to receive requests'}</div></div><button class="sw ${c.on?'on':''}" data-act="cgon" role="switch" aria-checked="${c.on}" aria-label="Online"></button></div></div>
+ <div class="stats"><div><b>${kw(wk)}</b><small>this week</small></div><div><b>4.9</b><small>rating</small></div><div><b>${c.sched.length}</b><small>today</small></div></div>
+ <h2>New requests</h2>${c.jobs.length?c.jobs.map(j=>`<div class="card"><div class="between"><b>${j.svc}</b><b>${kw(j.pay)}</b></div><small>${j.who} · ${j.area}</small><div class="meta" style="margin:6px 0 12px">${ic('clock','sm')} ${j.when}</div><div class="row"><button class="btn r sm" style="flex:1" data-act="jdec" data-v="${j.id}">Decline</button><button class="btn ac sm" style="flex:1" data-act="jacc" data-v="${j.id}">Accept</button></div></div>`).join(''):'<div class="card ctr"><p class="mut">No new requests right now.</p></div>'}
+ <h2>Profile strength</h2><div class="card"><div class="between" style="margin-bottom:8px"><b>85% complete</b><span class="pill pg">${ic('shield','sm')} Verified</span></div><div class="pbar"><i style="width:85%"></i></div><small style="display:block;margin-top:8px">Add a short video introduction to get more bookings.</small></div>`};
+A.cgon=()=>{S.cg.on=!S.cg.on;draw(true)};
+A.jdec=v=>{S.cg.jobs=S.cg.jobs.filter(j=>j.id!=v);draw(true);toast('Request declined')};
+A.jacc=v=>{const j=S.cg.jobs.find(x=>x.id==v);S.cg.sched.push(j);S.cg.jobs=S.cg.jobs.filter(x=>x.id!=v);draw(true);toast('Accepted. Added to your schedule.')};
+V.sched=()=>{const c=S.cg;
+ return `<div class="top"><h1>Schedule</h1></div><h2 style="margin-top:6px">Upcoming jobs</h2>${c.sched.length?c.sched.map(j=>`<div class="card"><div class="between"><b>${j.svc}</b><b>${kw(j.pay)}</b></div><small>${j.who}</small><div class="meta" style="margin-top:6px">${ic('clock','sm')} ${j.when}</div></div>`).join(''):'<div class="card ctr"><p class="mut">Nothing scheduled yet.</p></div>'}
+ <h2>My availability</h2><div class="card"><div class="lab" style="margin-top:0">Days I work</div><div class="chips">${DN.map((d,i)=>`<button class="chip ${c.days[i]?'on':''}" data-act="cgday" data-v="${i}" style="width:42px;padding:0">${d}</button>`).join('')}</div><div class="lab">Shifts</div><div class="chips">${['Morning','Afternoon','Evening','Night'].map(s=>`<button class="chip ${c.shifts.includes(s)?'on':''}" data-act="cgshift" data-v="${s}">${s}</button>`).join('')}</div><small style="display:block;margin-top:10px">Clients only see times inside your availability.</small></div>`};
+A.cgday=v=>{S.cg.days[+v]=S.cg.days[+v]?0:1;draw(true)};
+A.cgshift=v=>{const a=S.cg.shifts,i=a.indexOf(v);if(i>-1)a.splice(i,1);else a.push(v);draw(true)};
+V.earn=()=>{const c=S.cg,mx=Math.max(...c.week,1),tot=c.week.reduce((a,b)=>a+b,0);
+ return `<div class="top"><h1>Earnings</h1></div><div class="hero"><small style="color:#fff;opacity:.8">Available balance</small><div style="font-size:36px;font-weight:800">${kw(c.bal)}</div><button class="btn w sm" style="margin-top:10px" data-act="payout" ${c.bal?'':'disabled'}>Withdraw to Mobile Money</button></div>
+ <div class="card"><div class="between"><b>Last 7 days</b><b>${kw(tot)}</b></div><div class="bars">${c.week.map((v,i)=>`<div><i style="height:${Math.max(4,v/mx*100)}%"></i><small>${wd(addD(TODAY,i-6))[0]}</small></div>`).join('')}</div></div>
+ <div class="card">${[['Nurse home visit','Yesterday',350],['Elderly care (day)','Mon',420],['Wound dressing','Sun',300]].map(r=>`<div class="li"><div class="b"><b>${r[0]}</b><small>${r[1]}</small></div><b>${kw(r[2])}</b></div>`).join('')}</div>`};
+A.payout=()=>sheet(`<h1>Withdraw ${kw(S.cg.bal)}</h1><p class="mut" style="margin:6px 0 12px">Sent to MTN Mobile Money 096 123 4567.</p><button class="btn full" data-act="payok">Confirm withdrawal</button>`);
+A.payok=()=>{S.cg.bal=0;close();draw(true);toast('Withdrawal sent')};
+
+V.onb=V.onb;applyLook();draw();
+</script>
+</body></html>
